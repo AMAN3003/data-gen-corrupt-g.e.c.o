@@ -81,6 +81,50 @@ def generate_phone_number_australia():
 
 # -----------------------------------------------------------------------------
 #
+# -----------------------------------------------------------------------------
+#
+def Credit_Card_Complete(prefix, length):
+    """
+    'prefix' IS THE START OF CREDIT CARD WHICH IS DIFFERENT FOR DIFFERENT TYPES OF CREDIT AND IS STRING 
+    'length' OF THE CREDIT CARD NO IS 16 DIGIT
+    """
+    Credit_Card_Number = prefix
+
+    # generate credit card digits
+
+    while len(Credit_Card_Number) < (length - 1):
+        d = str(gene.choice(range(0, 10)))
+        Credit_Card_Number.append(d)
+
+    # Calculate SumCC of the credit card 
+    IterPos = 0
+    SumCC = 0
+    reversedCredit_Card_Number = []
+    reversedCredit_Card_Number.extend(Credit_Card_Number)
+    reversedCredit_Card_Number.reverse()
+    #LUH'S FORMULA 
+    while IterPos < length - 1:
+
+        OddDIG = int(reversedCredit_Card_Number[IterPos]) * 2
+        if OddDIG > 9:
+            OddDIG -= 9
+
+        SumCC += OddDIG
+
+        if IterPos != (length - 2):
+
+            SumCC += int(reversedCredit_Card_Number[IterPos + 1])
+
+        IterPos += 2
+
+    # Calculate check digit
+
+    Ccdigit_Check = ((SumCC / 10 + 1) * 10 - SumCC) % 10
+
+    Credit_Card_Number.append(str(Ccdigit_Check))
+
+    return ''.join(Credit_Card_Number)
+
 def generate_credit_card_number():
   """Randomly generate a credit card made of four four-digit numbers (with a
      space between each number group). For example: '1234 5678 9012 3456'
