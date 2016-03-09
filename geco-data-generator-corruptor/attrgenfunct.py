@@ -137,22 +137,35 @@ def C_C_Number(RanD, Prefix_Lists, length, maxNoEachC_C):
     return C_C_lists
 
 def generate_credit_card_number():
-  """Randomly generate a credit card made of four four-digit numbers (with a
-     space between each number group). For example: '1234 5678 9012 3456'
+  """Generate a credit card that pass the MOD 10 check (Luhn formula).
+     REAL CREDIT CARD NO used in e-commerce Websites. For example: '1234 5678 9012 3456'
 
      For details see: http://en.wikipedia.org/wiki/Bank_card_number
   """
+  
+  mastercard = C_C_Number(gene, Prefix_MasterCard_List, 16, 7)
+  visa16 = C_C_Number(gene, Prefix_Visa_List, 16, 9)
+  
+  
+  # Minor cards
+  discover = C_C_Number(gene, Prefix_Discover_List, 16, 2)
+  jcb = C_C_Number(gene, Prefix_JCB_List, 16, 2)
+  C_C_lists=[]
+  C_C_lists=mastercard+visa16+discover+jcb
+  real_credit_card_number=random.choice(C_C_lists)
+  creditcardparts=list(map(''.join, zip(*[iter(real_credit_card_number)]*4)))
 
-  number1 = random.randint(1,9999)
+
+  number1 = creditcardparts[0]
   assert number1 > 0
 
-  number2 = random.randint(1,9999)
+  number2 = creditcardparts[1]
   assert number2 > 0
 
-  number3 = random.randint(1,9999)
+  number3 = creditcardparts[2]
   assert number3 > 0
 
-  number4 = random.randint(1,9999)
+  number4 = creditcardparts[3]
   assert number4 > 0
 
   cc_str = str(number1).zfill(4)+' '+str(number2).zfill(4)+' '+ \
