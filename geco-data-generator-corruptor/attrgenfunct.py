@@ -125,6 +125,17 @@ def Credit_Card_Complete(prefix, length):
 
     return ''.join(Credit_Card_Number)
 
+def C_C_Number(RanD, Prefix_Lists, length, maxNoEachC_C):
+
+    C_C_lists = []
+
+    while len(C_C_lists) < maxNoEachC_C:
+
+        Credit_Card_Number = copy.copy(RanD.choice(Prefix_Lists))
+        C_C_lists.append(Credit_Card_Complete(Credit_Card_Number, length))
+
+    return C_C_lists
+
 def generate_credit_card_number():
   """Randomly generate a credit card made of four four-digit numbers (with a
      space between each number group). For example: '1234 5678 9012 3456'
