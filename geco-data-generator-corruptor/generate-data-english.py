@@ -160,6 +160,12 @@ age_salary_comp_attr = \
           continuous1_value_type = 'int',
           continuous2_value_type = 'float1')
 
+native_country_attr = \
+    generator.GenerateFreqAttribute(attribute_name = 'native_country',
+                          freq_file_name = 'lookup-files/native_country_freq.csv',
+                          has_header_line = False,
+                          unicode_encoding = unicode_encoding_used)
+
 # -----------------------------------------------------------------------------
 # Define how the generated records are to be corrupted (using methods from
 # the corruptor.py module).
@@ -221,13 +227,13 @@ given_name_missing_val_corruptor = corruptor.CorruptMissingValue(\
 #
 attr_name_list = ['gender', 'given-name', 'surname', 'postcode', 'city',
                   'telephone-number', 'credit-card-number', 'income-normal',
-                  'age-uniform', 'income', 'age', 'sex', 'blood-pressure']
+                  'age-uniform', 'income', 'age', 'sex', 'blood-pressure','native_country']
 
 attr_data_list = [gname_attr, sname_attr, postcode_attr, phone_num_attr,
                   credit_card_attr, age_uniform_attr, income_normal_attr,
                   gender_city_comp_attr, sex_income_comp_attr,
                   gender_town_salary_comp_attr, age_blood_pressure_comp_attr,
-                  age_salary_comp_attr]
+                  age_salary_comp_attr,native_country_attr]
 
 # Nothing to change here - set-up the data set generation object.
 #
