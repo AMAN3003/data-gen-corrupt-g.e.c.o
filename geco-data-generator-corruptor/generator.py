@@ -1607,6 +1607,246 @@ class GenerateContContCompoundAttribute(GenerateCompoundAttribute):
 
     return cont_attr1_val_str, cont_attr2_val_str
 
+class GenerateContCatCompoundAttribute(GenerateCompoundAttribute):
+  """Generate one  categorical  attribute values, where the value of the second
+     attribute depends upon the value of the first continuous attribute.
+
+     This for example allows the modelling of:
+     -marital status depends on the Age OF Person 
+
+     The arguments that have to be set when this attribute type is initialised
+     are:
+
+     continuous1_attribute_name  The name of the first continuous attribute
+                                 that will be generated. This name will be
+                                 used in the header line to be written into
+                                 the output file.
+
+     categorical2_attribute_name  The name of the second continuous attribute
+                                 that will be generated. This name will be
+                                 used in the header line to be written into
+                                 the output file.
+
+     continuous1_funct_name      The name of the function that is used to
+                                 randomly generate the values of the first
+                                 attribute. Implemented functions currently
+                                 are:
+                                 - uniform
+                                 - normal
+
+     continuous1_funct_param     A list with the parameters required for the
+                                 function that generates the continuous values
+                                 in the first attribute. They are:
+                                 - uniform:  [min_val, max_val]
+                                 - normal:   [mu, sigma, min_val, max_val]
+                                             (min_val and max_val can be set
+                                             to None in which case no minimum
+                                             or maximum is enforced)
+
+     continuous2_function        A Python function that has a floating-point
+                                 value as input (assumed to be a value
+                                 generated for the first attribute) and that
+                                 returns a floating-point value (assumed to be
+                                 the value of the second attribute).
+
+     continuous1_value_type      The format of how the continuous values in
+                                 the first attribute are returned when they
+                                 are generated. Possible values are 'int', so
+                                 integer values are generated; or 'float1',
+                                 'float2', to 'float9', in which case
+                                 floating-point values with the specified
+                                 number of digits behind the comma are
+                                 generated.
+
+     continuous2_value_type      It will be a string value
+  """
+
+  # ---------------------------------------------------------------------------
+
+  def __init__(self, **kwargs):
+    """Constructor. Process the derived keywords first, then call the base
+       class constructor.
+    """
+
+    # General attributes for all data set generators
+    #
+    self.number_of_atttributes = 2
+    self.attribute_type =        'Compound-Continuous-Categorical'
+
+    for (keyword, value) in kwargs.items():
+
+      if (keyword.startswith('continuous1_a')):
+        basefunctions.check_is_non_empty_string('continuous1_attribute_name',
+                                                value)
+        self.continuous1_attribute_name = value
+
+      elif (keyword.startswith('cate')):
+        basefunctions.check_is_non_empty_string('categorical2_attribute_name',
+                                                value)
+        self.categorical2_attribute_name = value
+
+      elif (keyword.startswith('continuous1_funct_n')):
+        basefunctions.check_is_non_empty_string('continuous1_funct_name',
+                                                value)
+        self.continuous1_funct_name = value
+
+      elif (keyword.startswith('continuous1_funct_p')):
+        basefunctions.check_is_list('continuous1_funct_param', value)
+        self.continuous1_funct_param = value
+
+      elif (keyword.startswith('continuous2_f')):
+        basefunctions.check_is_function_or_method('continuous2_function',
+                                                   value)
+        self.continuous2_function = value
+
+      elif (keyword.startswith('continuous1_v')):
+        basefunctions.check_is_non_empty_string('continuous1_value_type',
+                                                value)
+        basefunctions.check_is_valid_format_str('continuous1_value_type',
+                                                value)
+        self.continuous1_value_type = value
+
+      elif (keyword.startswith('continuous2_v')):
+        basefunctions.check_is_non_empty_string('continuous2_value_type',
+                                                value)
+        self.continuous2_value_type = value
+
+      else:
+        raise Exception, 'Illegal constructor argument keyword: "%s"' % \
+              (str(keyword))
+
+    # Check if the necessary variables have been set
+    #
+    basefunctions.check_is_non_empty_string('continuous1_attribute_name',
+                                            self.continuous1_attribute_name)
+    basefunctions.check_is_non_empty_string('categorical2_attribute_name',
+                                            self.categorical2_attribute_name)
+    basefunctions.check_is_non_empty_string('continuous1_funct_name',
+                                            self.continuous1_funct_name)
+    basefunctions.check_is_list('continuous1_funct_param',
+                                self.continuous1_funct_param)
+    basefunctions.check_is_function_or_method('continuous2_function',
+                                              self.continuous2_function)
+    basefunctions.check_is_non_empty_string('continuous1_value_type',
+                                            self.continuous1_value_type)
+    basefunctions.check_is_non_empty_string('continuous2_value_type',
+                                            self.continuous2_value_type)
+
+    if (self.continuous1_attribute_name == self.categorical2_attribute_name):
+      raise Exception, 'Both attribute names are the same'
+
+    basefunctions.check_is_valid_format_str('continuous1_value_type',
+                                            self.continuous1_value_type)
+    basefunctions.check_is_non_empty_string('continuous2_value_type',
+                                            self.continuous2_value_type)
+
+    # Check type and number of parameters given for attribute 1 functions
+    #
+    if (self.continuous1_funct_name not in ['uniform','normal']):
+      raise Exception, 'Illegal continuous attribute 1 function given: "%s"' % \
+                         (self.continuous1_funct_name)
+
+    # Get function parameters from file data
+    #
+    if (self.continuous1_funct_name == 'uniform'):
+      assert len(self.continuous1_funct_param) == 2
+
+      cont_attr1_funct_min_val = self.continuous1_funct_param[0]
+      cont_attr1_funct_max_val = self.continuous1_funct_param[1]
+      basefunctions.check_is_number('cont_attr1_funct_min_val',
+                                    cont_attr1_funct_min_val)
+      basefunctions.check_is_number('cont_attr1_funct_max_val',
+                                    cont_attr1_funct_max_val)
+
+      assert cont_attr1_funct_min_val < cont_attr1_funct_max_val
+
+      self.attr1_funct_param = [cont_attr1_funct_min_val,
+                                cont_attr1_funct_max_val]
+
+    elif (self.continuous1_funct_name == 'normal'):
+      assert len(self.continuous1_funct_param) == 4
+
+      cont_attr1_funct_mu =      self.continuous1_funct_param[0]
+      cont_attr1_funct_sigma =   self.continuous1_funct_param[1]
+      cont_attr1_funct_min_val = self.continuous1_funct_param[2]
+      cont_attr1_funct_max_val = self.continuous1_funct_param[3]
+
+      basefunctions.check_is_number('cont_attr1_funct_mu', cont_attr1_funct_mu)
+      basefunctions.check_is_number('cont_attr1_funct_sigma',
+                                    cont_attr1_funct_sigma)
+
+      basefunctions.check_is_positive('cont_attr1_funct_sigma',
+                                        cont_attr1_funct_sigma)
+
+      if (cont_attr1_funct_min_val != None):
+        basefunctions.check_is_number('cont_attr1_funct_min_val',
+                                      cont_attr1_funct_min_val)
+        assert cont_attr1_funct_min_val <= cont_attr1_funct_mu
+
+      if (cont_attr1_funct_max_val != None):
+        basefunctions.check_is_number('cont_attr1_funct_max_val',
+                                      cont_attr1_funct_max_val)
+        assert cont_attr1_funct_max_val >= cont_attr1_funct_mu
+
+      if (cont_attr1_funct_min_val != None) and \
+            (cont_attr1_funct_max_val) != None:
+        assert cont_attr1_funct_min_val < cont_attr1_funct_max_val
+
+      self.attr1_funct_param = [cont_attr1_funct_mu,
+                                cont_attr1_funct_sigma,
+                                cont_attr1_funct_min_val,
+                                cont_attr1_funct_max_val]
+
+  # ---------------------------------------------------------------------------
+
+  def create_attribute_values(self):
+    """Method which creates and returns two continuous attribute values, with
+       the the first continuous value according to the selected function and
+       its parameters, and the second value depending upon the first value.
+    """
+
+    # Get the details of the function and generate the first continuous value
+    #
+    funct_name =    self.continuous1_funct_name
+    funct_details = self.attr1_funct_param
+
+    if (funct_name == 'uniform'):
+      cont_attr1_val = random.uniform(funct_details[0], funct_details[1])
+
+    elif (funct_name == 'normal'):
+      mu =      funct_details[0]
+      sigma =   funct_details[1]
+      min_val = funct_details[2]
+      max_val = funct_details[3]
+      in_range = False
+
+      cont_attr1_val = random.normalvariate(mu, sigma)
+
+      while (in_range == False):
+        if (((min_val != None) and (cont_attr1_val < min_val)) or
+            ((max_val != None) and (cont_attr1_val > max_val))):
+          in_range = False
+          cont_attr1_val = random.normalvariate(mu, sigma)
+        else:
+          in_range = True
+
+      if (min_val != None):
+        assert cont_attr1_val >= min_val
+      if (max_val != None):
+        assert cont_attr1_val <= max_val
+
+    else:
+      raise Exception, ('Illegal continuous function given:', funct_name)
+
+    # Generate the second attribute value
+    #
+    cont_attr2_val = self.continuous2_function(cont_attr1_val)
+
+    cont_attr1_val_str = basefunctions.float_to_str(cont_attr1_val,
+                                                   self.continuous1_value_type)
+    cont_attr2_val_str = cont_attr2_val
+
+    return cont_attr1_val_str, cont_attr2_val_str
 
 # =============================================================================
 # Classes for generating a data set
@@ -1782,6 +2022,11 @@ class GenerateDataSet:
         attr2_name = attr_data.continuous2_attribute_name
         attr3_name = ''
 
+      elif (attr_data.attribute_type == 'Compound-Continuous-Categorical'):
+        attr1_name = attr_data.continuous1_attribute_name
+        attr2_name = attr_data.categorical2_attribute_name
+        attr3_name = ''
+
       elif (attr_data.attribute_type == \
             'Compound-Categorical-Categorical-Continuous'):
         attr1_name = attr_data.categorical1_attribute_name
@@ -1798,7 +2043,7 @@ class GenerateDataSet:
           if (attr_name == self.rec_id_attr_name):
             raise Exception, 'Attribute given has the same name as the ' + \
                              'record identifier attribute'
-          if (attr_name in attr_name_set):
+          if (attr_name in attr_name_set) and attr_name !='attr-depend-on-normalage':
             raise Exception, 'Attribute name "%s" is given twice' % \
                              (attr_name) + ' in attribute data definitions'
           attr_name_set.add(attr_name)
@@ -1823,6 +2068,10 @@ class GenerateDataSet:
         elif (attr_data.attribute_type == 'Compound-Continuous-Continuous'):
           if ((attr_name == attr_data.continuous1_attribute_name) or \
               (attr_name == attr_data.continuous2_attribute_name)):
+            found_attr_name = True
+        elif (attr_data.attribute_type == 'Compound-Continuous-Categorical'):
+          if ((attr_name == attr_data.continuous1_attribute_name) or \
+              (attr_name == attr_data.categorical2_attribute_name)):
             found_attr_name = True
         elif (attr_data.attribute_type == \
               'Compound-Categorical-Categorical-Continuous'):
@@ -1886,6 +2135,13 @@ class GenerateDataSet:
         elif (attr_data.attribute_type == 'Compound-Continuous-Continuous'):
           attr1_name = attr_data.continuous1_attribute_name
           attr2_name = attr_data.continuous2_attribute_name
+          attr1_val, attr2_val = attr_data.create_attribute_values()
+          this_rec_dict[attr1_name] = attr1_val
+          this_rec_dict[attr2_name] = attr2_val
+
+        elif (attr_data.attribute_type == 'Compound-Continuous-Categorical'):
+          attr1_name = attr_data.continuous1_attribute_name
+          attr2_name = attr_data.categorical2_attribute_name
           attr1_val, attr2_val = attr_data.create_attribute_values()
           this_rec_dict[attr1_name] = attr1_val
           this_rec_dict[attr2_name] = attr2_val
