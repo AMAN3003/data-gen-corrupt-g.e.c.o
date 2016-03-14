@@ -79,5 +79,19 @@ def salary_depending_on_age(age):
     sal = random.uniform(min_sal, max_sal)
 
   return sal
+# added a function for selecting in the list of value with the percentage of that value in the list
+def Prob_Weighted_Choice(prob_choices):
+    values=()
+    Weights_Percentage=()
+    values, Weights_Percentage = zip(*prob_choices)
+    total = 0
+    Cum_Weights_Percentage = []
+    for w in Weights_Percentage:
+        total += w
+        Cum_Weights_Percentage.append(total)
+    x = random.random() * total
+    i = bisect(Cum_Weights_Percentage, x)
+    return values[i]
+
 
 # -----------------------------------------------------------------------------
