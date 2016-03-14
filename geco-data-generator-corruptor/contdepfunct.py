@@ -20,9 +20,51 @@
 # =============================================================================
 
 import random
+from bisect import bisect
+import math
+
 
 # -----------------------------------------------------------------------------
 #
+
+
+
+def marital_Status_depending_on_age(age):
+  """ Randomly generates the maritial status depending on the age value.
+      the option are Single, Married(Firts Marriage) ,Remaried_widowhood
+      (following widowhood), Re-married (following previous marriage dissolution)
+       Seperated( including deserted),Divorced,widowed
+  """
+  age=math.floor(age)
+
+  if ((not isinstance(age, int)) and (not isinstance(age, float))):
+    raise Exception, 'Age value given is not a number: %s' % (str(age))
+
+  if (age < 0) or (age > 130):
+    raise Exception, 'Age value below 0 or above 130 given'
+
+  else:
+      if age > 0 and age <=20:
+        marital_Status="Single"
+
+      elif age > 20 and age <=34:
+        marital_Status=Prob_Weighted_Choice([("Married",42),("Single",49),("Seperated",2),("Divorced",7)])
+        
+      elif age > 34 and  age <=44:
+        marital_Status=Prob_Weighted_Choice([("Married",65),("Single",13),("Seperated",3), ("Widowed",1),("Divorced",18)])
+        
+      elif age > 44 and age <= 54:
+        marital_Status=Prob_Weighted_Choice([("Married",66),("Single",8),("Seperated",2), ("Widowed",4),("Divorced",20)])
+        
+      elif age > 54 and age <= 64:
+        marital_Status=Prob_Weighted_Choice([("Married",66),("Single",6),("Seperated",1), ("Widowed",9),("Divorced",18)])
+        
+      else:
+        marital_Status=Prob_Weighted_Choice([("Married",42),("Single",3),("Widowed",43),("Divorced",12)])
+  
+  return marital_Status
+
+
 def blood_pressure_depending_on_age(age):
   """Randomly generate a blood pressure value depending upon the given age
      value.
@@ -79,5 +121,20 @@ def salary_depending_on_age(age):
     sal = random.uniform(min_sal, max_sal)
 
   return sal
+# added a function for selecting in the list of value with the percentage of that value in the list
+
+def Prob_Weighted_Choice(prob_choices):
+    values=()
+    Weights_Percentage=()
+    values, Weights_Percentage = zip(*prob_choices)
+    total = 0
+    Cum_Weights_Percentage = []
+    for w in Weights_Percentage:
+        total += w
+        Cum_Weights_Percentage.append(total)
+    x = random.random() * total
+    i = bisect(Cum_Weights_Percentage, x)
+    return values[i]
+
 
 # -----------------------------------------------------------------------------
