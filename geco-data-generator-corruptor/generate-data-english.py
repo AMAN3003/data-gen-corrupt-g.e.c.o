@@ -103,6 +103,11 @@ age_uniform_attr = \
                        function = attrgenfunct.generate_uniform_age,
                        parameters = [0,120])
 
+age_population_pyramidal_attr = \
+    generator.GenerateFuncAttribute(attribute_name = 'age-Australia-pyramidal',
+                       function = attrgenfunct.generate_population_pyramid_age,
+                       parameters = [0,100])
+
 income_normal_attr = \
     generator.GenerateFuncAttribute(attribute_name = 'income-normal',
                        function = attrgenfunct.generate_normal_value,
@@ -237,13 +242,14 @@ given_name_missing_val_corruptor = corruptor.CorruptMissingValue(\
 #
 attr_name_list = ['gender', 'given-name', 'surname', 'postcode', 'city',
                   'telephone-number', 'credit-card-number', 'income-normal',
-                  'age-uniform', 'income','age','attr-depend-on-normalage','sex', 'blood-pressure','native_country','marital']
+                  'age-uniform', 'income','age','attr-depend-on-normalage','sex',
+                  'blood-pressure','native_country','marital','age-Australia-pyramidal']
 
 attr_data_list = [gname_attr, sname_attr, postcode_attr, phone_num_attr,
                   credit_card_attr, age_uniform_attr, income_normal_attr,
                   gender_city_comp_attr, sex_income_comp_attr,
                   gender_town_salary_comp_attr, age_blood_pressure_comp_attr,
-                  age_salary_comp_attr,native_country_attr,age_maritial_comp_attr]
+                  age_salary_comp_attr,native_country_attr,age_maritial_comp_attr,age_population_pyramidal_attr]
 
 # Nothing to change here - set-up the data set generation object.
 #
