@@ -72,9 +72,56 @@ Prefix_Visa_List = [
 Prefix_Discover_List = [['6', '0', '1', '1']]
 
 # =============================================================================
+# -----------------------------------------------------------------------------
+
+def TFN_Australia():
+  """Randomly generate an Australian tax file number made of a eight or nine-digit
+     A tax file number (TFN) is a unique identifier issued by the Australian 
+     Taxation Office (ATO) to each taxpaying entity .Its validation is based on check algorithms 
+     and weight multilpication of each digit along with  
+
+     For details see: https://en.wikipedia.org/wiki/Tax_file_number
+  """        
+  val = random.randint(10000000, 999999999)
+  #generate a random 9 digit no 
+  tfn1 = "{0:09}".format(val)
+  length =len(tfn1)
+  
+  ssn_str=str(tfn1)
+  _TFN=list(map(''.join, zip(*[iter(ssn_str)]*3)))
+
+
+  if(length != 9):
+      raise Exception, 'Value of TFN "%s" should be aa 9 digit no  ' % (TFN_Australia)
+
+  TFN_Weights=[1,4,3,7,5,8,6,9,10]
+  TFN_Digits=map(int,str(tfn1))
+  Sum=0
+  for i in range(0,9):
+      Sum+=TFN_Digits[i]*TFN_Weights[i]
+  # Invert the weight to find what the correct tfn check digit is
+  # implementation idea is that the weight for the last digit is 10, and the
+  # inverse of 10 modulo 11 is 10 itself: 10 * 10 = 99 = 1 mod 11
+  if ((Sum == 0) or (Sum % 11 != 0)):
+      digit=0
+      digit=10 * (TFN_Weights[i]*TFN_Digits[i]-Sum)%11
+      if (digit<0):
+          digit += 11
+      elif (digit == 10):# Note that if the digit is 10, then this TFN is impossible so regrenerate the TFN
+          print "No TFN check digit is possible for the number"+_TFN[0]+_TFN[1]+_TFN[2][0]+_TFN[2][1]+"X"
+          New_Correct_TFN=TFN_Australia()
+
+      else:
+          New_Correct_TFN=_TFN[0]+_TFN[1]+_TFN[2][0]+_TFN[2][1]+str(digit)
+  else:
+      New_Correct_TFN=tfn1    
+  
+  return str(New_Correct_TFN)
 
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
+
 def generate_phone_number_australia():
   """Randomly generate an Australian telephone number made of a two-digit area
      code and an eight-digit number made of two blocks of four digits (with a
