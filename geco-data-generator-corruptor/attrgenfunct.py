@@ -222,6 +222,52 @@ def generate_uniform_value(min_val, max_val, val_type):
 
 # -----------------------------------------------------------------------------
 #
+
+
+def generate_population_pyramid_age(min_val_pyramidal, max_val_pyramidal):
+  """Randomly generate an age value (returned as integer) according to a
+     population pyramidal distribution of australian people 
+     between the minimum and maximum values given.
+     
+     This function is simple a shorthand for:
+
+       generate_popul_pyramid_value(min_val_pyramidal, max_val_pyramidal, 'int')
+  """
+  
+  assert min_val_pyramidal >= 0
+  assert max_val_pyramidal <= 130
+
+  return generate_popul_pyramid_value(min_val_pyramidal, max_val_pyramidal, 'int')
+
+def generate_popul_pyramid_value(min_val_pyramidal, max_val_pyramidal, val_type):
+  """Randomly generate an age value (returned as integer) according to a
+     population pyramidal distribution of australian people 
+     between the minimum and maximum values given.
+     For details see:
+     https://populationpyramid.net/australia/2015/
+  """
+
+  basefunctions.check_is_number('min_val', min_val_pyramidal)
+  basefunctions.check_is_number('max_val', max_val_pyramidal)
+  assert min_val_pyramidal < max_val_pyramidal
+
+  population_pyramid_data=[]
+  population_pyramid_data+=[([0,4],6.4),([5,9],6.4),([10,14],5.9),([15,19],6.2),([15,19],6.2),([20,24],7), 
+        ([25,29],7.5),([30,34],7.4),([35,39],6.4),([35,39],6.4),([40,44],7.1),([45,49],6.4),([50,54],6.8),
+        ([55,59],6.1),([60,64],5.3),([65,69],5.0),([70,74],3.5),([70,74],3.5),([75,79],2.7),([80,84],2),
+        ([85,89],1.3),([90,94],0.6),([95,99],0.1)]
+  age_gen=Prob_Weighted_Choice(population_pyramid_data)
+    
+  min_val_age_interval=age_gen[0]
+  max_val_age_interval=age_gen[1]
+  r=random.uniform(min_val_age_interval, max_val_age_interval)
+  #r = random.uniform(min_val, max_val)
+
+  return basefunctions.float_to_str(r, val_type)
+
+# -----------------------------------------------------------------------------
+#
+
 def generate_uniform_age(min_val, max_val):
   """Randomly generate an age value (returned as integer) according to a
      uniform distribution between the minimum and maximum values given.
