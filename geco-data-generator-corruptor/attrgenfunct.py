@@ -34,6 +34,23 @@ gene = Random()
 gene.seed()
 import copy
 import basefunctions
+
+from bisect import bisect
+import math
+# =============================================================================
+# for the generating the age based on the australian population pyramid
+def Prob_Weighted_Choice(prob_choices):
+    values=()
+    Weights_Percentage=()
+    values, Weights_Percentage = zip(*prob_choices)
+    total = 0
+    Cum_Weights_Percentage = []
+    for w in Weights_Percentage:
+        total += w
+        Cum_Weights_Percentage.append(total)
+    x = random.random() * total
+    i = bisect(Cum_Weights_Percentage, x)
+    return values[i]
 # =============================================================================
 # real credit card starting prefix
 Prefix_JCB_List = [['3', '5']]
